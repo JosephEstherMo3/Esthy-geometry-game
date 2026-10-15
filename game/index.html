@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover" />
+<title>NEON DASH — Geometry Runner</title>
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div id="game">
+  <canvas id="canvas"></canvas>
+  <canvas class="victory-particles" id="victoryCanvas"></canvas>
+  <div class="progress-bar" id="progressBar" style="display:none"><div class="progress-fill" id="progressFill"></div></div>
+  <div class="hud" id="hud" style="display:none">
+    <div class="hud-left">
+      <div class="hud-box">LVL <span class="v" id="hudLevel">1</span></div>
+      <div class="hud-box"><span id="hudLevelName">Neon Start</span></div>
+    </div>
+    <div class="hud-right">
+      <div class="hud-box">BEST <span class="v" id="hudBest">0%</span></div>
+      <div class="hud-box"><span class="v" id="hudProgress">0%</span></div>
+      <button class="icon-btn" id="btnPause" title="Pause">❚❚</button>
+    </div>
+  </div>
+  <div class="death-flash" id="deathFlash"></div>
+
+  <!-- MAIN MENU -->
+  <div class="overlay active" id="menuMain">
+    <div class="title">NEON DASH</div>
+    <div class="subtitle">Geometry Runner</div>
+    <div class="panel">
+      <button class="btn primary" id="btnPlay">▶ PLAY</button>
+      <div class="btn-row">
+        <button class="btn" data-goto="menuLevels">LEVELS</button>
+        <button class="btn" data-goto="menuPractice">PRACTICE</button>
+      </div>
+      <div class="btn-row">
+        <button class="btn" data-goto="menuHowTo">HOW TO PLAY</button>
+        <button class="btn" data-goto="menuSettings">SETTINGS</button>
+      </div>
+      <div class="stats">
+        <div class="stat"><div class="val" id="statCompleted">0/5</div><div class="lbl">Completed</div></div>
+        <div class="stat"><div class="val" id="statAttempts">0</div><div class="lbl">Attempts</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LEVEL SELECT -->
+  <div class="overlay" id="menuLevels">
+    <div class="section-title">Select Level</div>
+    <div class="panel">
+      <div class="level-grid" id="levelGrid"></div>
+      <button class="btn" data-goto="menuMain">← BACK</button>
+    </div>
+  </div>
+
+  <!-- PRACTICE SELECT -->
+  <div class="overlay" id="menuPractice">
+    <div class="section-title">Practice Mode</div>
+    <div class="panel">
+      <p style="text-align:center;font-size:13px;color:#9d95c7;margin-bottom:12px">Checkpoints enabled. Learn the level at your own pace.</p>
+      <div class="level-grid" id="practiceGrid"></div>
+      <button class="btn" data-goto="menuMain">← BACK</button>
+    </div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div class="overlay" id="menuSettings">
+    <div class="section-title">Settings</div>
+    <div class="panel scrollable">
+      <div class="slider-row"><label>Music Volume</label><input type="range" id="setMusic" min="0" max="100" value="50"><div class="val" id="setMusicVal">50</div></div>
+      <div class="slider-row"><label>SFX Volume</label><input type="range" id="setSfx" min="0" max="100" value="70"><div class="val" id="setSfxVal">70</div></div>
+      <div class="toggle"><span>Music</span><div class="switch on" id="setMusicOn"></div></div>
+      <div class="toggle"><span>Sound Effects</span><div class="switch on" id="setSfxOn"></div></div>
+      <div class="toggle"><span>Reduced Effects</span><div class="switch" id="setReduced"></div></div>
+      <div style="height:14px"></div>
+      <button class="btn small" id="btnReset">Reset All Progress</button>
+      <button class="btn" data-goto="menuMain">← BACK</button>
+    </div>
+  </div>
+
+  <!-- HOW TO PLAY -->
+  <div class="overlay" id="menuHowTo">
+    <div class="section-title">How to Play</div>
+    <div class="panel scrollable">
+      <div class="howto-item"><div class="key">SPACE / ↑</div><div class="desc">Jump. Tap again mid-air in some modes for a second jump.</div></div>
+      <div class="howto-item"><div class="key">CLICK / TAP</div><div class="desc">Jump. Works on desktop and mobile.</div></div>
+      <div class="howto-item"><div class="key">ESC / ❚❚</div><div class="desc">Pause or resume the game.</div></div>
+      <div class="howto-item"><div class="key">GOAL</div><div class="desc">Avoid spikes and gaps. Reach the end of each level to unlock the next.</div></div>
+      <div class="howto-item"><div class="key">PRACTICE</div><div class="desc">Checkpoints save your progress. Respawn at the last checkpoint on death.</div></div>
+      <div class="howto-item"><div class="key">TIP</div><div class="desc">Time your jumps to the beat. Watch for moving obstacles in later levels.</div></div>
+      <button class="btn" data-goto="menuMain">← BACK</button>
+    </div>
+  </div>
+
+  <!-- PAUSE -->
+  <div class="overlay" id="menuPause">
+    <div class="section-title">Paused</div>
+    <div class="panel">
+      <button class="btn primary" id="btnResume">▶ RESUME</button>
+      <button class="btn" id="btnRestart">↻ RESTART</button>
+      <button class="btn" id="btnToMenu">⌂ MAIN MENU</button>
+      <div class="slider-row"><label>Music</label><input type="range" id="pauseMusic" min="0" max="100" value="50"><div class="val" id="pauseMusicVal">50</div></div>
+      <div class="slider-row"><label>SFX</label><input type="range" id="pauseSfx" min="0" max="100" value="70"><div class="val" id="pauseSfxVal">70</div></div>
+    </div>
+  </div>
+
+  <!-- DEATH -->
+  <div class="overlay" id="menuDeath">
+    <div class="section-title" style="color:var(--magenta)">Crashed!</div>
+    <div class="big-stat" id="deathProgress">0%</div>
+    <div class="panel">
+      <div class="stats">
+        <div class="stat"><div class="val" id="deathAttempts">1</div><div class="lbl">Attempt</div></div>
+        <div class="stat"><div class="val" id="deathBest">0%</div><div class="lbl">Best</div></div>
+      </div>
+      <button class="btn primary" id="btnRetry">↻ RETRY</button>
+      <button class="btn" id="btnDeathMenu">⌂ MAIN MENU</button>
+    </div>
+  </div>
+
+  <!-- VICTORY -->
+  <div class="overlay" id="menuVictory">
+    <div class="section-title" style="color:var(--green)">Level Complete!</div>
+    <div class="big-stat">100%</div>
+    <div class="panel">
+      <div class="stats">
+        <div class="stat"><div class="val" id="victoryTime">0.0s</div><div class="lbl">Time</div></div>
+        <div class="stat"><div class="val" id="victoryAttempts">1</div><div class="lbl">Attempts</div></div>
+      </div>
+      <button class="btn primary" id="btnNext">NEXT LEVEL →</button>
+      <button class="btn" id="btnReplay">↻ REPLAY</button>
+      <button class="btn" id="btnVictoryMenu">⌂ MAIN MENU</button>
+    </div>
+  </div>
+</div>
+
+<script src="core.js"></script>
+<script src="levels.js"></script>
+<script src="game.js"></script>
+<script src="render.js"></script>
+<script src="ui.js"></script>
+</body>
+</html>
